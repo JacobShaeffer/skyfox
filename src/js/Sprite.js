@@ -2,21 +2,17 @@ class Sprite {
 	constructor(options) {
 		// Private Variables
 		this.tickCount = 0;
-		this.ticksPerFrame = options.ticksPerFrame || 0;
+		this.ticksPerFrame = (60 / options.framesPerSecond) || 0;
 		this.initialFrameIndex = options.initialFrameIndex || 0;
 		this.numberOfFrames = options.numberOfFrames || 1;
 		this.frameIndex = this.initialFrameIndex;
 
 		// Public Variables
-		this._context = 	options.context;
 		this._width = 	options.width;
 		this._height = 	options.height;
 		this._image = 	options.image;
 		this._loop = 	options.loop;
 	}
-
-	get context(){return this._context}
-	set context(context){this._context = context}
 
 	get width(){return this._width}
 	set width(width){this._width = width}
@@ -43,17 +39,16 @@ class Sprite {
 		}
 	}
 
-	render(){
-		this._context.clearRect(0, 0, this._width, this._height);
-		this._context.drawImage(
+	render(context){
+		context.drawImage(
 			this._image,
-			this.frameIndex * this._width / this.numberOfFrames,
+			this.frameIndex * this._width,
 			0,
-			this._width / this.numberOfFrames,
+			this._width,
 			this._height,
 			0,
 			0,
-			this._width / this.numberOfFrames,
+			this._width,
 			this._height,
 		)
 	}

@@ -1,34 +1,64 @@
 import Sprite from './Sprite';
-import Canvas from './Canvas';
-import spriteSheet from '../../res/character_sheet.png';
+import Game from './Game';
+import character_sheet from '../../res/character_sheet.png';
 
-let spriteTiles = new Image();
-let character;
+let game;
+let resources = {};
 
-function gameLoop(){
+function gameLoop(deltaTime){
+	game.update(deltaTime);
+	game.render();
+
 	window.requestAnimationFrame(gameLoop);
-
-	character.update();
-	character.render();
 }
 
 function main(){
-	console.log('test');
-	let canvas = new Canvas('game', 400, 400);
+	game = new Game({cid: 'game', width: 400, height: 400});
 
-	character = new Sprite({
-		context: canvas.context,
-		width: 96*4,
+	let character = new Sprite({
+		width: 96,
 		height: 96,
-		image: spriteTiles,
+		image: resources.character,
 		loop: true,
-		ticksPerFrame: 30,
+		framesPerSecond: 2,
 		initialFrameIndex: 2,
 		numberOfFrames: 4,
 	});
 
-	gameLoop();
+	game.add(character);
+
+	gameLoop(0);
 }
 
-spriteTiles.addEventListener('load', main, false);
-spriteTiles.src = spriteSheet;
+let paths = [
+	{key: 'character', path: character_sheet},
+];
+
+function resourceLoader(callback) { 
+	let counter = 0;
+
+	for(let idx=0; idx<paths.length; idx++){
+		(function(i){
+			let img = new Image();
+
+			resources[paths[i].key] = img;
+
+			img.addEventListener('load', function(){
+				counter++;
+				if(counter >= paths.length){
+					callback();
+				}
+			}, false);
+			img.addEventListener('error', function(){
+				counter++;
+				if(counter >= paths.length){
+					callback();
+				}
+			}, false);
+
+			img.src = paths[i].path;
+		})(idx);
+	}
+}
+
+resourceLoader(main);
